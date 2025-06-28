@@ -1,0 +1,30 @@
+[http]
+redirectToHttps = true
+{% if xo_config_public_url|default("")!="" %}
+publicUrl = '{{xo_config_public_url}}'
+{% else %}
+#publicUrl = 'https://xoa.company.lan'
+{% endif %}
+
+[http.cookies]
+
+[[http.listen]]
+port = 80
+
+[[http.listen]]
+port = 443
+cert = '{{xo_config_cert_path}}'
+key = '{{xo_config_key_path}}'
+
+[http.mounts]
+'/' = '/opt/xo/xo-web/dist/'
+
+[http.proxies]
+
+[redis]
+
+uri = '{{xo_config_redis_uri}}'
+
+[remoteOptions]
+
+[plugins]
