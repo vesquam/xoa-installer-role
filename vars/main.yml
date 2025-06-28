@@ -1,0 +1,13 @@
+---
+xo_service_path: "/etc/systemd/system/xo-server.service"
+xen_orchestra_installer_git_repo: "https://github.com/ronivay/XenOrchestraInstallerUpdater.git"
+xen_installer_path: "/opt/xen-installer"
+xen_required_pkg:
+  "dnf":
+    - "git"
+    - "curl"
+    - "epel-release"
+    - "httpd"
+  "deb":
+    - "git"
+    - "apache2"

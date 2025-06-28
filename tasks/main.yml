@@ -1,0 +1,37 @@
+---
+- name: Check if XO service exists
+  ansible.builtin.stat:
+    path: "{{xo_service_path}}"
+  register: xo_stat
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    xo_installed: "{{xo_stat.stat.exists|default(false)}}"
+
+- debug:
+    msg:
+      - "xo_stat -> {{xo_stat}}"
+      - "xo installed {{xo_installed}}"
+
+
+- name: Install packages [dnf]
+  ansible.builtin.dnf:
+    name: "{{xen_required_pkg['dnf']}}"
+    state: latest
+  when: ansible_pkg_mgr=="dnf"
+
+- name: "Create xen-installer path"
+  ansible.builtin.file:
+    path: "{{xen_installer_path}}"
+    state: directory
+
+- name: "Git Clone XenOrchestraInstallerUpdater"
+  ansible.builtin.git:
+    repo: "{{xen_orchestra_installer_git_repo}}"
+    dest: "{{xen_installer_path}}"
+
+- name: "XenOrchestraInstallerUpdater Run install/update"
+  ansible.builtin.command:
+    argv:
+      - "{{xen_installer_path}}/xo-install.sh"
+      - "{{'--install' if xo_installed==False else '--update'}}"
