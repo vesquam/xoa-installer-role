@@ -1,68 +1,20 @@
 ---
-- name: Check if XO service exists
-  ansible.builtin.stat:
-    path: "{{xo_service_path}}"
-  register: xo_stat
+- name: Validate OS
+  ansible.builtin.assert:
+    that:
+      - "{{ ansible_distribution|lower in ['centos','rocky','alma','rhel'] and (ansible_distribution_major_version|int>=7 and ansible_distribution_major_version|int<=9)}}"
 
-- name: Set facts
-  ansible.builtin.set_fact:
-    xo_installed: "{{xo_stat.stat.exists|default(false)}}"
-    xo_config_public_url: "{% if xo_domain!='' %}https://{{xo_domain}}{% else %}{% endif %}"
+- name: Preparation
+  ansible.builtin.include_tasks:
+    file: ./preparation.yml
 
-- name: Install packages [dnf]
-  ansible.builtin.dnf:
-    name: "{{xen_required_pkg['dnf']}}"
-    state: latest
-  when: ansible_pkg_mgr=="dnf"
+- name: XenOrchestraInstaller
+  ansible.builtin.include_tasks:
+    file: ./XenOrchestraInstaller.yml
 
-- name: "Create xen-installer path"
-  ansible.builtin.file:
-    path: "{{xen_installer_path}}"
-    state: directory
-
-- name: "Git Clone XenOrchestraInstallerUpdater"
-  ansible.builtin.git:
-    repo: "{{xen_orchestra_installer_git_repo}}"
-    dest: "{{xen_installer_path}}"
-
-- name: "XenOrchestraInstallerUpdater Run install/update"
-  ansible.builtin.command:
-    argv:
-      - "{{xen_installer_path}}/xo-install.sh"
-      - "{{'--install' if xo_installed==False else '--update'}}"
-  register: xo_install
-
-- name: "XenOrchestraInstallerUpdater output"
-  ansible.builtin.debug:
-    msg: "{{xo_install.stdout_lines}}"
-
-- name: "Create xo-server config and certs path"
-  ansible.builtin.file:
-    path: "{{item.path}}"
-    state: directory
-  with_items:
-    - {path: "{{xo_config_path}}"}
-    - {path: "{{xo_certs_path}}"}
-
-- name: Create private key (RSA, 4096 bits)
-  community.crypto.openssl_privatekey:
-    path: "{{xo_config_key_path}}"
-
-- name: Certificate signing request (CSR)
-  community.crypto.openssl_csr_pipe:
-    common_name: "{{xo_cert_common_name}}"
-    organization_name: "{{xo_cert_org_name}}"
-    privatekey_path: "{{xo_config_key_path}}"
-    subject_alt_name: "{{ [ 'IP:'+ansible_host ] + ([ 'DNS:'+xo_domain ] if xo_domain!='' else [] ) }}"
-  register: csr
-
-- name: Create simple self-signed certificate
-  community.crypto.x509_certificate:
-    privatekey_path: "{{xo_config_key_path}}"
-    path: "{{xo_config_cert_path}}"
-    csr_content: "{{csr.csr}}"
-    provider: selfsigned
-  register: xo_cert
+- name: XO cert"
+  ansible.builtin.include_tasks:
+    file: ./xo-cert.yml
 
 - name: XO-Server config
   ansible.builtin.template:

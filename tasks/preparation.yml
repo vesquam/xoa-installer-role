@@ -1,0 +1,21 @@
+---
+- name: Check if XO service exists
+  ansible.builtin.stat:
+    path: "{{xo_service_path}}"
+  register: xo_stat
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    xo_installed: "{{xo_stat.stat.exists|default(false)}}"
+    xo_config_public_url: "{% if xo_domain!='' %}https://{{xo_domain}}{% else %}{% endif %}"
+
+- name: Install packages [dnf]
+  ansible.builtin.dnf:
+    name: "{{xen_required_pkg['dnf']}}"
+    state: latest
+  when: ansible_pkg_mgr=="dnf"
+
+- name: "Create xen-installer path"
+  ansible.builtin.file:
+    path: "{{xen_installer_path}}"
+    state: directory

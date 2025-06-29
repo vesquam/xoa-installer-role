@@ -1,0 +1,24 @@
+---
+- name: "Git Clone XenOrchestraInstallerUpdater"
+  ansible.builtin.git:
+    repo: "{{xen_orchestra_installer_git_repo}}"
+    dest: "{{xen_installer_path}}"
+
+- name: "XenOrchestraInstallerUpdater Run install/update"
+  ansible.builtin.command:
+    argv:
+      - "{{xen_installer_path}}/xo-install.sh"
+      - "{{'--install' if xo_installed==False else '--update'}}"
+  register: xo_install
+
+- name: "XenOrchestraInstallerUpdater output"
+  ansible.builtin.debug:
+    msg: "{{xo_install.stdout_lines}}"
+
+- name: "Create xo-server config and certs path"
+  ansible.builtin.file:
+    path: "{{item.path}}"
+    state: directory
+  with_items:
+    - {path: "{{xo_config_path}}"}
+    - {path: "{{xo_certs_path}}"}

@@ -1,0 +1,20 @@
+---
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{xo_config_key_path}}"
+
+- name: Certificate signing request (CSR)
+  community.crypto.openssl_csr_pipe:
+    common_name: "{{xo_cert_common_name}}"
+    organization_name: "{{xo_cert_org_name}}"
+    privatekey_path: "{{xo_config_key_path}}"
+    subject_alt_name: "{{ [ 'IP:'+ansible_host ] + ([ 'DNS:'+xo_domain ] if xo_domain!='' else [] ) }}"
+  register: csr
+
+- name: Create simple self-signed certificate
+  community.crypto.x509_certificate:
+    privatekey_path: "{{xo_config_key_path}}"
+    path: "{{xo_config_cert_path}}"
+    csr_content: "{{csr.csr}}"
+    provider: selfsigned
+  register: xo_cert

@@ -12,13 +12,11 @@ xen_required_pkg:
     - "git"
     - "apache2"
 
-xo_service_path: "/etc/systemd/system/xo-server.service"
-
-xo_fw_zone: public
-xo_domain: ""
-
 xo_cert_common_name: ""
 xo_cert_org_name: ""
+xo_domain: ""
+xo_fw_zone: public
+xo_service_path: "/etc/systemd/system/xo-server.service"
 
 xo_config_user: "root"
 xo_config_path: "/etc/xo-server"
@@ -27,5 +25,4 @@ xo_config_file: "{{xo_config_path}}/config.toml"
 xo_config_cert_path: "{{xo_certs_path}}/certificate.pem"
 xo_config_key_path: "{{xo_certs_path}}/certificate.key"
 xo_config_redis_uri: "redis://127.0.0.1:6379/0"
-
 xo_config_public_url: ""
