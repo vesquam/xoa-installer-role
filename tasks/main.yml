@@ -16,36 +16,11 @@
   ansible.builtin.include_tasks:
     file: ./xo-cert.yml
 
-- name: XO-Server config
-  ansible.builtin.template:
-    src: config.toml.j2
-    dest: "{{xo_config_file}}"
-  register: xo_config
-
-- name: Delete XenOrchestraInstallerUpdater default config
-  ansible.builtin.file:
-    path: "/{{xo_config_user}}/.config/xo-server"
-    state: absent
-  register: xo_default_conf
-
-- name: Restart xo-server for the updated config
-  ansible.builtin.systemd_service:
-    name: xo-server.service
-    state: restarted
-  when: xo_default_conf.changed|default(false) or xo_config.changed|default(false) or xo_cert.changed|default(false)
-
-- name: Config firewalld
-  ansible.posix.firewalld:
-    service: "{{item}}"
-    permanent: true
-    state: enabled
-    immediate: true
-    zone: "{{xo_fw_zone}}"
-  with_items:
-    - "http"
-    - "https"
-
 - name: XO-Web banner tweak
   ansible.builtin.include_tasks:
     file: ./xo-web_banner_tweak.yml
   when: xo_web_banner_tweak|default(false)
+
+- name: XO config
+  ansible.builtin.include_tasks:
+    file: ./xo-config.yml
