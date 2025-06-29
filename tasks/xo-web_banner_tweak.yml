@@ -1,0 +1,12 @@
+---
+- name: NPM Disable source banner
+  ansible.builtin.replace:
+    path: "{{xo_web_path}}/src/xo-app/index.js"
+    regexp: "^(\\s+)(dismissedSourceBanner: )Boolean\\(cookies.get\\('dismissedSourceBanner'\\)\\),"
+    replace: '\1\2true,'
+  register: xo_web_src_changed
+- name: NPM build
+  ansible.builtin.command:
+    chdir: "{{xo_web_path}}"
+    cmd: "npm run build"
+  when: xo_web_src_changed.changed|default(false)

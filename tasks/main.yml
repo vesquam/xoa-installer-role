@@ -44,3 +44,8 @@
   with_items:
     - "http"
     - "https"
+
+- name: XO-Web banner tweak
+  ansible.builtin.include_tasks:
+    file: ./xo-web_banner_tweak.yml
+  when: xo_web_banner_tweak|default(false)

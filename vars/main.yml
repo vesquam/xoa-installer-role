@@ -6,17 +6,18 @@ xen_required_pkg:
     - "git"
     - "curl"
     - "epel-release"
-    - "httpd"
     - "python3-cryptography"
   "deb":
     - "git"
-    - "apache2"
 
 xo_cert_common_name: ""
 xo_cert_org_name: ""
 xo_domain: ""
 xo_fw_zone: public
 xo_service_path: "/etc/systemd/system/xo-server.service"
+
+xo_path: "/opt/xo"
+xo_web_path: "{{xo_path}}/xo-web"
 
 xo_config_user: "root"
 xo_config_path: "/etc/xo-server"
