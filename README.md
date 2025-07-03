@@ -1,6 +1,6 @@
 # xoa-installer-role
 
-Ansible wrapper to manage XenInstallerUpdater script.
+Ansible wrapper to manage [XenInstallerUpdater script](https://github.com/ronivay/XenOrchestraInstallerUpdater).
 
 ## Basic play example
 
